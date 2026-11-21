@@ -1,7 +1,3 @@
-CREATE SCHEMA public;
-GRANT ALL ON SCHEMA public TO postgres;
-GRANT ALL ON SCHEMA public TO public;
-
 CREATE TYPE tipo_falta_enum AS ENUM ('simples', 'grave', 'violenta');
 CREATE TYPE cartao_enum AS ENUM ('nenhum', 'amarelo', 'vermelho');
 
