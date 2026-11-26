@@ -1,209 +1,177 @@
-CREATE TYPE tipo_falta_enum AS ENUM ('simples', 'grave', 'violenta');
-CREATE TYPE cartao_enum AS ENUM ('nenhum', 'amarelo', 'vermelho');
-
-CREATE TABLE "time"
-(
+CREATE TABLE jogador (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    id_federacao INT,
+    nacionalidade VARCHAR(50) NOT NULL,
+    status VARCHAR(30),
+    contrato VARCHAR(50),
+    posicao VARCHAR(30) NOT NULL,
+    nome VARCHAR(100) NOT NULL,
+    data_nascimento DATE NOT NULL,
+    peso DECIMAL(5,2),
+    altura DECIMAL(3,2)
+);
+
+CREATE TABLE membro_comissao (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    funcao VARCHAR(50),
+    nome VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE federacao (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    uf CHAR(2) NOT NULL,
+    data_fundacao DATE NOT NULL,
+    abrangencia VARCHAR(30) NOT NULL,
+    nome VARCHAR(100) NOT NULL,
+    sigla CHAR(3) NOT NULL,
+    UNIQUE (sigla),
+    UNIQUE (nome)
+);
+
+CREATE TABLE "time" (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id_federacao INT NOT NULL,
     cores VARCHAR(50),
     nome_fantasia VARCHAR(100),
-    nome_de_fundacao VARCHAR(100),
-    presidente VARCHAR(100),
-    estado VARCHAR(50),
-    transmissao_de_tv VARCHAR(100),
-    abreviacao_nome VARCHAR(10)
+    data_fundacao DATE NOT NULL,
+    presidente VARCHAR(100) NOT NULL,
+    estado CHAR(2) NOT NULL,
+    brasao BYTEA NOT NULL,
+    sigla CHAR(3) NOT NULL,
+    UNIQUE (sigla),
+    UNIQUE (nome_fantasia)
 );
 
-CREATE TABLE jogador
-(
-    id_bid_jg INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    peso FLOAT,
-    altura FLOAT,
-    nacionalidade VARCHAR(50),
-    status VARCHAR(30),
-    contrato VARCHAR(100),
-    posicao VARCHAR(30),
-    nome VARCHAR(100),
+CREATE TABLE campeonato (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    edicao VARCHAR(20) NOT NULL,
+    nome VARCHAR(100) NOT NULL,
+    promocao VARCHAR(100) NOT NULL,
+    quantidade_equipes INT NOT NULL,
+    divisao VARCHAR(30) NOT NULL,
+    "local" VARCHAR(100) NOT NULL,
+    sistema VARCHAR(50) NOT NULL,
+    apelido VARCHAR(50) NOT NULL,
+    UNIQUE (nome, edicao)
+);
+
+CREATE TABLE dirigente (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id_federacao INT NOT NULL,
     data_nascimento DATE,
-    id_time INT
+    nome VARCHAR(100) NOT NULL,
+    cargo VARCHAR(50) NOT NULL
 );
 
-CREATE TABLE membro_comissao
-(
-    id_bid INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    funcao VARCHAR(50),
-    nome VARCHAR(100),
-    id_time INT
-);
-
-CREATE TABLE historico_jogador_partida
-(
+CREATE TABLE oficial_arbitragem (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    entrada_campo TIME,
-    saida_campo TIME,
-    id_jogador INT,
-    id_partida INT
+    nome VARCHAR(100) NOT NULL,
+    data_nascimento DATE NOT NULL,
+    categoria VARCHAR(30) NOT NULL
 );
 
-CREATE TABLE gol
-(
+CREATE TABLE estadio (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    id_registro_jogador INT,
-    tipo_gol VARCHAR(50),
-    minutagem TIME
-);
-
-CREATE TABLE falta
-(
-    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    id_registro_jogador INT,
-    tipo_falta tipo_falta_enum,
-    penalidade_coletiva VARCHAR(100),
-    cartao cartao_enum,
-    minutagem TIME
-);
-
-CREATE TABLE federacao
-(
-    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    sigla VARCHAR(10) UNIQUE,
-    uf VARCHAR(2),
-    data_fundacao DATE,
-    abrangencia VARCHAR(50),
-    nome VARCHAR(150)
-);
-
-CREATE TABLE campeonato
-(
-    codigo INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    apelido VARCHAR(50),
-    edicao INT,
-    nome VARCHAR(150),
-    promocao VARCHAR(100),
-    quantidade_equipes INT,
-    divisao INT,
-    local VARCHAR(100),
-    sistema VARCHAR(50),
-    CONSTRAINT uq_nome_edicao_camp UNIQUE (nome, edicao)
-);
-
-CREATE TABLE dirigente
-(
-    cpf CHAR(11) PRIMARY KEY,
-    id_federacao INT,
-    data_nascimento DATE,
-    nome VARCHAR(100),
-    cargo VARCHAR(50)
-);
-
-CREATE TABLE oficial_arbitragem
-(
-    cpf CHAR(11) PRIMARY KEY,
-    nome VARCHAR(100),
-    data_nascimento DATE,
-    categoria VARCHAR(50)
-);
-CREATE TABLE partida
-(
-    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    nome VARCHAR(150),
-    id_estadio INT,
-    id_time_visitante INT,
-    id_time_mandante INT,
-    id_campeonato INT,
-    publico INT,
-    renda INT,
-    descricao VARCHAR(255),
-    etapa_campeonato INT,
-    data DATE
-);
-
-CREATE TABLE estadio
-(
-    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    nome VARCHAR(100),
     capacidade INT,
+    nome VARCHAR(100) NOT NULL,
     apelido VARCHAR(50),
-    tipo_de_gramado VARCHAR(50),
+    tipo_gramado VARCHAR(30),
     data_inauguracao DATE,
-    estado VARCHAR(50),
-    rua VARCHAR(150),
-    CONSTRAINT uq_nome_estadio UNIQUE (nome)    
+    rua VARCHAR(100),
+    estado CHAR(2),
+    UNIQUE (nome)
 );
 
-CREATE TABLE comando_comissao_jogador
-(
-    id_bid_cm INT,
-    id_bid_jg INT,
-    PRIMARY KEY (id_bid_cm, id_bid_jg)
+CREATE TABLE partida (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id_estadio INT NOT NULL,
+    id_campeonato INT NOT NULL,
+    publico INT,
+    renda DECIMAL(12,2),
+    descricao VARCHAR(255),
+    etapa_campeonato VARCHAR(50) NOT NULL,
+    "data" TIMESTAMP NOT NULL,
+    nome VARCHAR(100) NOT NULL,
+    id_time_mandante INT NOT NULL,
+    id_time_visitante INT NOT NULL,
+    CHECK (id_time_mandante <> id_time_visitante)
 );
 
-CREATE TABLE elenco_time
-(
-    id_time INT,
-    id_bid_jg INT,
-    PRIMARY KEY (id_time, id_bid_jg)
+CREATE TABLE gol (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id_partida INT NOT NULL,
+    tipo_gol VARCHAR(30),
+    minutagem TIME NOT NULL,
+    id_jogador INT NOT NULL,
+    UNIQUE (id_partida, minutagem, id_jogador)
 );
 
-CREATE TABLE comissao_time
-(
-    id_bid INT,
-    id_time INT,
-    PRIMARY KEY (id_bid, id_time)
+CREATE TABLE falta (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id_partida INT NOT NULL,
+    tipo_falta VARCHAR(30) NOT NULL,
+    penalidade_coletiva BOOLEAN,
+    cartao VARCHAR(20),
+    minutagem TIME NOT NULL,
+    id_jogador INT NOT NULL
 );
 
-CREATE TABLE organizacao_campeonato
-(
-    id_campeonato INT,
-    id_federacao INT,
-    PRIMARY KEY (id_campeonato, id_federacao)
+CREATE TABLE comando_comissao_jogador (
+    id_membro_comissao INT NOT NULL,
+    id_jogador INT NOT NULL,
+    PRIMARY KEY (id_membro_comissao, id_jogador)
 );
 
-CREATE TABLE escalacao_arbitragem
-(
-    id_partida INT,
-    cpf CHAR(11),
-    funcao VARCHAR(50),
-    PRIMARY KEY (id_partida, cpf)
+CREATE TABLE elenco_time (
+    id_time INT NOT NULL,
+    id_jogador INT NOT NULL,
+    data_inicio DATE NOT NULL,
+    PRIMARY KEY (id_time, id_jogador)
 );
 
-CREATE TABLE mando_campo_time
-(
-    id_estadio INT,
-    id_time INT,
-    PRIMARY KEY (id_estadio, id_time)
+CREATE TABLE comissao_time (
+    id_time INT NOT NULL,
+    id_membro_comissao INT NOT NULL,
+    PRIMARY KEY (id_time, id_membro_comissao)
 );
 
-CREATE TABLE participacao_campeonato
-(
-    id_campeonato INT,
-    id_time INT,
+CREATE TABLE organizacao_campeonato (
+    id_federacao INT NOT NULL,
+    id_campeonato INT NOT NULL,
+    PRIMARY KEY (id_federacao, id_campeonato)
+);
+
+CREATE TABLE escalacao_arbitragem (
+    id_partida INT NOT NULL,
+    id_oficial_arbitragem INT NOT NULL,
+    funcao VARCHAR(30) NOT NULL,
+    PRIMARY KEY (id_partida, id_oficial_arbitragem)
+);
+
+CREATE TABLE participacao_campeonato (
+    id_campeonato INT NOT NULL,
+    id_time INT NOT NULL,
     PRIMARY KEY (id_campeonato, id_time)
 );
 
-ALTER TABLE historico_jogador_partida ADD FOREIGN KEY (id_jogador) REFERENCES jogador (id_bid_jg);
-ALTER TABLE historico_jogador_partida ADD FOREIGN KEY (id_partida) REFERENCES partida (id);
-ALTER TABLE gol ADD FOREIGN KEY (id_registro_jogador) REFERENCES historico_jogador_partida (id);
-ALTER TABLE falta ADD FOREIGN KEY (id_registro_jogador) REFERENCES historico_jogador_partida (id);
-ALTER TABLE jogador ADD FOREIGN KEY (id_time) REFERENCES "time" (id);
-ALTER TABLE membro_comissao ADD FOREIGN KEY (id_time) REFERENCES "time" (id);
+ALTER TABLE gol ADD FOREIGN KEY (id_partida) REFERENCES partida (id);
+ALTER TABLE gol ADD FOREIGN KEY (id_jogador) REFERENCES jogador (id);
+ALTER TABLE falta ADD FOREIGN KEY (id_partida) REFERENCES partida (id);
+ALTER TABLE falta ADD FOREIGN KEY (id_jogador) REFERENCES jogador (id);
 ALTER TABLE "time" ADD FOREIGN KEY (id_federacao) REFERENCES federacao (id);
 ALTER TABLE dirigente ADD FOREIGN KEY (id_federacao) REFERENCES federacao (id);
 ALTER TABLE partida ADD FOREIGN KEY (id_estadio) REFERENCES estadio (id);
-ALTER TABLE partida ADD FOREIGN KEY (id_time_visitante) REFERENCES "time" (id);
+ALTER TABLE partida ADD FOREIGN KEY (id_campeonato) REFERENCES campeonato (id);
 ALTER TABLE partida ADD FOREIGN KEY (id_time_mandante) REFERENCES "time" (id);
-ALTER TABLE partida ADD FOREIGN KEY (id_campeonato) REFERENCES campeonato (codigo);
-ALTER TABLE comando_comissao_jogador ADD FOREIGN KEY (id_bid_cm) REFERENCES membro_comissao (id_bid);
-ALTER TABLE comando_comissao_jogador ADD FOREIGN KEY (id_bid_jg) REFERENCES jogador (id_bid_jg);
+ALTER TABLE partida ADD FOREIGN KEY (id_time_visitante) REFERENCES "time" (id);
+ALTER TABLE comando_comissao_jogador ADD FOREIGN KEY (id_membro_comissao) REFERENCES membro_comissao (id);
+ALTER TABLE comando_comissao_jogador ADD FOREIGN KEY (id_jogador) REFERENCES jogador (id);
 ALTER TABLE elenco_time ADD FOREIGN KEY (id_time) REFERENCES "time" (id);
-ALTER TABLE elenco_time ADD FOREIGN KEY (id_bid_jg) REFERENCES jogador (id_bid_jg);
-ALTER TABLE comissao_time ADD FOREIGN KEY (id_bid) REFERENCES membro_comissao (id_bid);
+ALTER TABLE elenco_time ADD FOREIGN KEY (id_jogador) REFERENCES jogador (id);
 ALTER TABLE comissao_time ADD FOREIGN KEY (id_time) REFERENCES "time" (id);
-ALTER TABLE organizacao_campeonato ADD FOREIGN KEY (id_campeonato) REFERENCES campeonato (codigo);
+ALTER TABLE comissao_time ADD FOREIGN KEY (id_membro_comissao) REFERENCES membro_comissao (id);
 ALTER TABLE organizacao_campeonato ADD FOREIGN KEY (id_federacao) REFERENCES federacao (id);
+ALTER TABLE organizacao_campeonato ADD FOREIGN KEY (id_campeonato) REFERENCES campeonato (id);
 ALTER TABLE escalacao_arbitragem ADD FOREIGN KEY (id_partida) REFERENCES partida (id);
-ALTER TABLE escalacao_arbitragem ADD FOREIGN KEY (cpf) REFERENCES oficial_arbitragem (cpf);
-ALTER TABLE mando_campo_time ADD FOREIGN KEY (id_estadio) REFERENCES estadio (id);
-ALTER TABLE mando_campo_time ADD FOREIGN KEY (id_time) REFERENCES "time" (id);
-ALTER TABLE participacao_campeonato ADD FOREIGN KEY (id_campeonato) REFERENCES campeonato (codigo);
+ALTER TABLE escalacao_arbitragem ADD FOREIGN KEY (id_oficial_arbitragem) REFERENCES oficial_arbitragem (id);
+ALTER TABLE participacao_campeonato ADD FOREIGN KEY (id_campeonato) REFERENCES campeonato (id);
 ALTER TABLE participacao_campeonato ADD FOREIGN KEY (id_time) REFERENCES "time" (id);
