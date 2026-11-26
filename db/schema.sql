@@ -83,7 +83,8 @@ CREATE TABLE campeonato
     quantidade_equipes INT,
     divisao INT,
     local VARCHAR(100),
-    sistema VARCHAR(50)
+    sistema VARCHAR(50),
+    CONSTRAINT uq_nome_edicao_camp UNIQUE (nome, edicao)
 );
 
 CREATE TABLE dirigente
@@ -126,7 +127,8 @@ CREATE TABLE estadio
     tipo_de_gramado VARCHAR(50),
     data_inauguracao DATE,
     estado VARCHAR(50),
-    rua VARCHAR(150)
+    rua VARCHAR(150),
+    CONSTRAINT uq_nome_estadio UNIQUE (nome)    
 );
 
 CREATE TABLE comando_comissao_jogador
